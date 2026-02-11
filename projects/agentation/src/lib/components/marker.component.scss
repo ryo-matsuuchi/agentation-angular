@@ -1,0 +1,160 @@
+// =============================================================================
+// マーカーコンポーネント - Angular BEM スタイル
+// =============================================================================
+// React CSS Modules (.marker, .renumber 等) から BEM 命名規則へ移行。
+// アニメーション・トランジション・シャドウはReact版と完全一致。
+
+$blue: #3c82f7;
+$red: #ff3b30;
+$green: #34c759;
+
+// =============================================================================
+// アニメーションキーフレーム
+// =============================================================================
+
+// マーカー登場アニメーション（スケール 0.3 → 1）
+@keyframes markerIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+// マーカー退場アニメーション（スケール 1 → 0.3）
+@keyframes markerOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+}
+
+// 番号変更時のロールアニメーション
+@keyframes renumberRoll {
+  0% {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// マーカー本体（22pxの円形バッジ）
+// =============================================================================
+
+.agentation-marker {
+  position: fixed;
+  width: 22px;
+  height: 22px;
+  background: var(--accent-color, $blue);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  cursor: pointer;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  user-select: none;
+  will-change: transform, opacity;
+  contain: layout style;
+  z-index: 1;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+
+  // ホバー時はz-indexを上げて他マーカーの上に表示
+  &:hover {
+    z-index: 2;
+  }
+
+  // アニメーション中でない時のみトランジションを適用
+  &:not(.agentation-marker--enter):not(.agentation-marker--exiting):not(.agentation-marker--clearing) {
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  // -----------------------------------------------------------------------
+  // 状態修飾子
+  // -----------------------------------------------------------------------
+
+  // 登場アニメーション
+  &--enter {
+    animation: markerIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  // 退場アニメーション（個別削除）
+  &--exiting {
+    animation: markerOut 0.2s ease-out both;
+    pointer-events: none;
+  }
+
+  // 全クリア時の退場アニメーション（やや速い）
+  &--clearing {
+    animation: markerOut 0.15s ease-out both;
+    pointer-events: none;
+  }
+
+  // アニメーション中でない時のみホバースケールを適用
+  &:not(.agentation-marker--enter):not(.agentation-marker--exiting):not(.agentation-marker--clearing):hover {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  // ホバー状態（削除モード時に赤色表示）
+  &--hovered {
+    background: $red;
+  }
+
+  // 番号変更アニメーション中（子要素のバッジにロールアニメーション適用）
+  &--renumbering {
+    .agentation-marker__badge {
+      display: block;
+      animation: renumberRoll 0.2s ease-out;
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // 子要素
+  // -----------------------------------------------------------------------
+
+  // 番号バッジ（マーカー中央の数字表示）
+  &__badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  // ホバー時アクションオーバーレイ（編集/削除アイコン）
+  &__action {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+  }
+}

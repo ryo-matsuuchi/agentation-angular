@@ -1,0 +1,435 @@
+// =============================================================================
+// ポップアップコンポーネント - Angular BEM スタイル
+// =============================================================================
+// React CSS Modules (.popup, .header, etc.) → BEM (.agentation-popup, .agentation-popup__header, etc.)
+// [data-annotation-popup] 属性セレクタでスコープ化
+
+$blue: #3c82f7;
+$green: #34c759;
+
+// =============================================================================
+// アニメーションキーフレーム
+// =============================================================================
+
+@keyframes popupEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
+
+@keyframes popupExit {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95) translateY(4px);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1) translateY(0) translateX(0);
+  }
+  20% {
+    transform: translateX(-50%) scale(1) translateY(0) translateX(-3px);
+  }
+  40% {
+    transform: translateX(-50%) scale(1) translateY(0) translateX(3px);
+  }
+  60% {
+    transform: translateX(-50%) scale(1) translateY(0) translateX(-2px);
+  }
+  80% {
+    transform: translateX(-50%) scale(1) translateY(0) translateX(2px);
+  }
+}
+
+// =============================================================================
+// スコープラッパー
+// =============================================================================
+
+[data-annotation-popup] {
+  // ホストページの svg { fill: currentColor } ルールからストロークベースアイコンを保護
+  // fill="none" 属性を持つSVGのみ対象
+  svg[fill="none"] {
+    fill: none !important;
+  }
+
+  // ===========================================================================
+  // ポップアップコンテナ
+  // ===========================================================================
+
+  .agentation-popup {
+    position: fixed;
+    transform: translateX(-50%);
+    width: 280px;
+    padding: 0.75rem 1rem 14px;
+    background: #1a1a1a;
+    border-radius: 16px;
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.08);
+    cursor: default;
+    z-index: 100001;
+    font-family:
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+    will-change: transform, opacity;
+
+    // 初期状態（アニメーション前）
+    opacity: 0;
+
+    // 入場アニメーション
+    &--enter {
+      animation: popupEnter 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    // 入場完了後の安定状態
+    &--entered {
+      opacity: 1;
+      transform: translateX(-50%) scale(1) translateY(0);
+    }
+
+    // 退場アニメーション
+    &--exit {
+      animation: popupExit 0.15s ease-in forwards;
+    }
+
+    // シェイクアニメーション（入場完了状態が前提）
+    &--entered#{&}--shake {
+      animation: shake 0.25s ease-out;
+    }
+
+    // =========================================================================
+    // ライトモード
+    // =========================================================================
+
+    &--light {
+      background: #fff;
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(0, 0, 0, 0.06);
+
+      .agentation-popup__element {
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      .agentation-popup__timestamp {
+        color: rgba(0, 0, 0, 0.4);
+      }
+
+      .agentation-popup__chevron {
+        color: rgba(0, 0, 0, 0.4);
+      }
+
+      .agentation-popup__styles-block {
+        background: rgba(0, 0, 0, 0.03);
+      }
+
+      .agentation-popup__style-line {
+        color: rgba(0, 0, 0, 0.75);
+      }
+
+      .agentation-popup__style-property {
+        color: #7c3aed;
+      }
+
+      .agentation-popup__style-value {
+        color: rgba(0, 0, 0, 0.75);
+      }
+
+      .agentation-popup__quote {
+        color: rgba(0, 0, 0, 0.55);
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      .agentation-popup__textarea {
+        background: rgba(0, 0, 0, 0.03);
+        color: #1a1a1a;
+        border-color: rgba(0, 0, 0, 0.12);
+
+        &::placeholder {
+          color: rgba(0, 0, 0, 0.4);
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.15);
+        }
+      }
+
+      .agentation-popup__cancel {
+        color: rgba(0, 0, 0, 0.5);
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.06);
+          color: rgba(0, 0, 0, 0.75);
+        }
+      }
+
+      .agentation-popup__delete-button {
+        color: rgba(0, 0, 0, 0.4);
+
+        &:hover {
+          background: rgba(255, 59, 48, 0.15);
+          color: #ff3b30;
+        }
+      }
+    }
+  }
+
+  // ===========================================================================
+  // ヘッダー
+  // ===========================================================================
+
+  .agentation-popup__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5625rem;
+  }
+
+  .agentation-popup__element {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .agentation-popup__header-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+
+    .agentation-popup__element {
+      flex: 1;
+    }
+  }
+
+  // シェブロンアイコン（コンピューテッドスタイルの展開/折りたたみ）
+  .agentation-popup__chevron {
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+
+    &--expanded {
+      transform: rotate(90deg);
+    }
+  }
+
+  // ===========================================================================
+  // コンピューテッドスタイルブロック
+  // ===========================================================================
+
+  // グリッドアニメーションによるスムーズな高さ遷移
+  // 参考: https://css-tricks.com/css-grid-can-do-auto-height-transitions/
+  .agentation-popup__styles-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &--expanded {
+      grid-template-rows: 1fr;
+    }
+  }
+
+  // グリッドアニメーションに必要な内部コンテナ（overflow: hidden）
+  .agentation-popup__styles-inner {
+    overflow: hidden;
+  }
+
+  // CSSプロパティ表示用コードブロックスタイル
+  .agentation-popup__styles-block {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.625rem;
+    margin-bottom: 0.5rem;
+    font-family:
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+  }
+
+  .agentation-popup__style-line {
+    color: rgba(255, 255, 255, 0.85);
+    word-break: break-word;
+  }
+
+  // シンタックスハイライト（プロパティ名は紫、値はライト）
+  .agentation-popup__style-property {
+    color: #c792ea;
+  }
+
+  .agentation-popup__style-value {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .agentation-popup__timestamp {
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.35);
+    font-variant-numeric: tabular-nums;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  // ===========================================================================
+  // 引用（選択テキスト表示）
+  // ===========================================================================
+
+  .agentation-popup__quote {
+    font-size: 12px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.25rem;
+    line-height: 1.45;
+  }
+
+  // ===========================================================================
+  // テキストエリア
+  // ===========================================================================
+
+  .agentation-popup__textarea {
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8125rem;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: $blue;
+    }
+
+    // グリーンアクセントカラー用フォーカス
+    &--green:focus {
+      border-color: $green;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+  }
+
+  // ===========================================================================
+  // アクションボタン
+  // ===========================================================================
+
+  .agentation-popup__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+  }
+
+  .agentation-popup__cancel,
+  .agentation-popup__submit {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 1rem;
+    border: none;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      opacity 0.15s ease;
+  }
+
+  .agentation-popup__cancel {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  .agentation-popup__submit {
+    color: white;
+
+    &:hover:not(:disabled) {
+      filter: brightness(0.9);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  // 削除ボタンラッパー
+  .agentation-popup__delete-wrapper {
+    margin-right: auto;
+  }
+
+  .agentation-popup__delete-button {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.1s ease;
+
+    &:hover {
+      background: rgba(255, 59, 48, 0.25);
+      color: #ff3b30;
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+  }
+}

@@ -1,0 +1,1015 @@
+// =============================================================================
+// メインコンポーネント (Agentation) - Angular BEM スタイル
+// =============================================================================
+// React CSS Modules (.toolbar, .controlButton, etc.) を BEM命名規則に変換
+// (.agentation-toolbar, .agentation-toolbar__button, etc.)
+//
+// ツールバー + ホバー + 汎用スタイルのみ含む
+// マーカー・ポップアップは個別のSCSSファイルで管理
+
+// SCSS変数
+$blue: #3c82f7;
+$red: #ff3b30;
+$green: #34c759;
+
+// =============================================================================
+// スコープラッパー
+// =============================================================================
+
+[data-agentation] {
+  // SVGストロークアイコン保護
+  // ホストページの `svg { fill: currentColor }` ルールから保護する
+  svg[fill="none"] {
+    fill: none !important;
+  }
+
+  // =========================================================================
+  // アニメーションキーフレーム
+  // =========================================================================
+
+  // ツールバー登場アニメーション
+  @keyframes toolbarEnter {
+    from {
+      opacity: 0;
+      transform: scale(0.5) rotate(90deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  // バッジ登場アニメーション
+  @keyframes badgeEnter {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  // スケールイン
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  // スケールアウト
+  @keyframes scaleOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+  }
+
+  // スライドアップ
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: scale(0.85) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  // スライドダウン
+  @keyframes slideDown {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.85) translateY(8px);
+    }
+  }
+
+  // フェードイン
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  // フェードアウト
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  // ホバーハイライト登場
+  @keyframes hoverHighlightIn {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  // ホバーツールチップ登場
+  @keyframes hoverTooltipIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  // 接続パルスアニメーション
+  @keyframes connectionPulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(0.9);
+    }
+  }
+
+  // =========================================================================
+  // ツールバー（メインコンテナ）
+  // =========================================================================
+  // React: .toolbar + .toolbarContainer → Angular: .agentation-toolbar
+  // position: fixed で右下に配置。折りたたみ時は44x44の円形ボタン、
+  // 展開時はフルバーとしてコントロールボタンを表示。
+
+  .agentation-toolbar {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 100000;
+    font-family:
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 1.5rem;
+    padding: 0.375rem;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.2),
+      0 4px 16px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+    cursor: grab;
+
+    // アニメーション付きプロパティ
+    transition:
+      width 0.4s cubic-bezier(0.19, 1, 0.22, 1),
+      transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+
+    // ドラッグ中はwidthトランジションのみ保持
+    &--dragging {
+      transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+      cursor: grabbing;
+    }
+
+    // 登場アニメーション
+    &--entrance {
+      animation: toolbarEnter 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+    }
+
+    // 折りたたみ状態（マスコットアイコンのみ表示）
+    &--collapsed {
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        margin-top: -1px;
+      }
+
+      &:hover {
+        background: #2a2a2a;
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+
+    // 展開状態（全コントロールボタン表示）
+    &--expanded {
+      height: 44px;
+      border-radius: 1.5rem;
+      padding: 0.375rem;
+      width: 257px;
+
+      // サーバー接続時は幅を広げる
+      &.agentation-toolbar--server-connected {
+        width: 297px;
+      }
+    }
+  }
+
+  // =========================================================================
+  // トグルボタン（マスコット/活性化ボタン）
+  // =========================================================================
+  // React: .toggleContent → Angular: .agentation-toolbar__toggle
+
+  .agentation-toolbar__toggle {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0;
+    transition: opacity 0.1s cubic-bezier(0.19, 1, 0.22, 1);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+
+    // 表示状態
+    &--visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    // 非表示状態
+    &--hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  // =========================================================================
+  // コントロールボタン群
+  // =========================================================================
+  // React: .controlsContent → Angular: ツールバー内のフレックスレイアウトで管理
+
+  // =========================================================================
+  // コントロールボタン
+  // =========================================================================
+  // React: .controlButton → Angular: .agentation-toolbar__button
+
+  .agentation-toolbar__button {
+    position: relative;
+    cursor: pointer !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.1s ease,
+      opacity 0.2s ease;
+
+    // ホバー（無効・アクティブ・失敗等を除外）
+    &:hover:not(:disabled):not(.agentation-toolbar__button--active):not(
+        .agentation-toolbar__button--failed
+      ):not(.agentation-toolbar__button--auto-sync):not(
+        .agentation-toolbar__button--error
+      ):not(.agentation-toolbar__button--no-hover) {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.92);
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed !important;
+    }
+
+    // アクティブ状態
+    &--active {
+      color: $blue;
+      background: rgba($blue, 0.25);
+    }
+
+    // エラー状態
+    &--error {
+      color: $red;
+      background: rgba($red, 0.25);
+    }
+
+    // 危険アクション（削除等）
+    &--danger {
+      &:hover:not(:disabled):not(.agentation-toolbar__button--active):not(
+          .agentation-toolbar__button--failed
+        ) {
+        background: rgba($red, 0.25);
+        color: $red;
+      }
+    }
+
+    // ホバー無効（ステータス表示中など）
+    &--no-hover,
+    &--status-showing {
+      cursor: default !important;
+      pointer-events: none;
+      background: transparent !important;
+    }
+
+    // 自動同期モード（Claude Code連携時）- 緑色、非インタラクティブ
+    &--auto-sync {
+      color: $green;
+      background: transparent;
+      cursor: default !important;
+    }
+
+    // 失敗状態（リスナーなし）- 赤色
+    &--failed {
+      color: $red;
+      background: rgba($red, 0.25);
+    }
+  }
+
+  // =========================================================================
+  // ボタンバッジ（ボタン上の数値インジケーター）
+  // =========================================================================
+  // React: .buttonBadge → Angular: .agentation-toolbar__button-badge
+
+  .agentation-toolbar__button-badge {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: $blue;
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 0 0 2px #1a1a1a,
+      0 1px 3px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+
+    // ライトモード用
+    &--light {
+      box-shadow:
+        0 0 0 2px #fff,
+        0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // =========================================================================
+  // アノテーション数カウンター（ツールバー上のバッジ）
+  // =========================================================================
+  // React: .badge → Angular: .agentation-toolbar__count
+
+  .agentation-toolbar__count {
+    position: absolute;
+    top: -13px;
+    right: -13px;
+    user-select: none;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: $blue;
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.15),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    opacity: 1;
+    transition:
+      transform 0.3s ease,
+      opacity 0.2s ease;
+    transform: scale(1);
+
+    // フェードアウト状態
+    &--fade-out {
+      opacity: 0;
+      transform: scale(0);
+      pointer-events: none;
+    }
+
+    // 登場アニメーション
+    &--entrance {
+      animation: badgeEnter 0.3s cubic-bezier(0.34, 1.2, 0.64, 1) 0.4s both;
+    }
+  }
+
+  // =========================================================================
+  // ボタンラッパー（ツールチップ配置用）
+  // =========================================================================
+  // React: .buttonWrapper → Angular: .agentation-toolbar__button-wrapper
+
+  .agentation-toolbar__button-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // ラッパーホバー時にツールチップ表示（遅延付き）
+    &:hover .agentation-toolbar__button-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) scale(1);
+      transition-delay: 0.85s;
+    }
+
+    // ボタンが無効の場合はツールチップ非表示
+    &:has(.agentation-toolbar__button:disabled):hover .agentation-toolbar__button-tooltip {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  // 送信ボタンラッパー - MCP接続/切断時に幅をアニメーション
+  // React: .sendButtonWrapper → Angular: .agentation-toolbar__send-wrapper
+  .agentation-toolbar__send-wrapper {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    margin-left: -0.375rem;
+    transition:
+      width 0.4s cubic-bezier(0.19, 1, 0.22, 1),
+      opacity 0.3s cubic-bezier(0.19, 1, 0.22, 1),
+      margin 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+
+    .agentation-toolbar__button {
+      transform: scale(0.8);
+      transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    // 送信ボタン表示状態
+    &--visible {
+      width: 34px;
+      opacity: 1;
+      overflow: visible;
+      pointer-events: auto;
+      margin-left: 0;
+
+      .agentation-toolbar__button {
+        transform: scale(1);
+      }
+    }
+  }
+
+  // =========================================================================
+  // ツールバーボタンツールチップ
+  // =========================================================================
+  // React: .buttonTooltip → Angular: .agentation-toolbar__button-tooltip
+
+  .agentation-toolbar__button-tooltip {
+    position: absolute;
+    bottom: calc(100% + 14px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.95);
+    padding: 6px 10px;
+    background: #1a1a1a;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 100001;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition:
+      opacity 0.135s ease,
+      transform 0.135s ease,
+      visibility 0.135s ease;
+
+    // 下向き矢印（回転した四角形で丸い先端）
+    &::after {
+      content: "";
+      position: absolute;
+      top: calc(100% - 4px);
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 8px;
+      height: 8px;
+      background: #1a1a1a;
+      border-radius: 0 0 2px 0;
+    }
+  }
+
+  // キーボードショートカット表示
+  .agentation-toolbar__shortcut {
+    margin-left: 4px;
+    opacity: 0.5;
+  }
+
+  // ツールチップ下部配置（ツールバーが上部にある場合）
+  .agentation-toolbar--tooltip-below .agentation-toolbar__button-tooltip {
+    bottom: auto;
+    top: calc(100% + 14px);
+    transform: translateX(-50%) scale(0.95);
+
+    &::after {
+      top: calc(-4px);
+      bottom: auto;
+      border-radius: 2px 0 0 0;
+    }
+  }
+
+  .agentation-toolbar--tooltip-below .agentation-toolbar__button-wrapper:hover .agentation-toolbar__button-tooltip {
+    transform: translateX(-50%) scale(1);
+  }
+
+  // クリック後にツールチップを即時非表示
+  .agentation-toolbar--tooltips-hidden .agentation-toolbar__button-tooltip {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: none !important;
+  }
+
+  // ツールチップ強制表示（例：エージェント送信後）
+  .agentation-toolbar__button-tooltip--visible,
+  .agentation-toolbar--tooltips-hidden .agentation-toolbar__button-tooltip--visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) scale(1) !important;
+    transition-delay: 0s !important;
+  }
+
+  // 左寄せツールチップ（左端のボタン用）
+  .agentation-toolbar__button-wrapper--align-left {
+    .agentation-toolbar__button-tooltip {
+      left: 50%;
+      transform: translateX(-12px) scale(0.95);
+
+      &::after {
+        left: 16px;
+      }
+    }
+
+    &:hover .agentation-toolbar__button-tooltip {
+      transform: translateX(-12px) scale(1);
+    }
+  }
+
+  .agentation-toolbar--tooltip-below .agentation-toolbar__button-wrapper--align-left {
+    .agentation-toolbar__button-tooltip {
+      transform: translateX(-12px) scale(0.95);
+    }
+
+    &:hover .agentation-toolbar__button-tooltip {
+      transform: translateX(-12px) scale(1);
+    }
+  }
+
+  // 右寄せツールチップ（右端のボタン用）
+  .agentation-toolbar__button-wrapper--align-right {
+    .agentation-toolbar__button-tooltip {
+      left: 50%;
+      transform: translateX(calc(-100% + 12px)) scale(0.95);
+
+      &::after {
+        left: auto;
+        right: 8px;
+      }
+    }
+
+    &:hover .agentation-toolbar__button-tooltip {
+      transform: translateX(calc(-100% + 12px)) scale(1);
+    }
+  }
+
+  .agentation-toolbar--tooltip-below .agentation-toolbar__button-wrapper--align-right {
+    .agentation-toolbar__button-tooltip {
+      transform: translateX(calc(-100% + 12px)) scale(0.95);
+    }
+
+    &:hover .agentation-toolbar__button-tooltip {
+      transform: translateX(calc(-100% + 12px)) scale(1);
+    }
+  }
+
+  // =========================================================================
+  // ディバイダー（ボタン間の区切り線）
+  // =========================================================================
+  // React: .divider → Angular: .agentation-toolbar__divider
+
+  .agentation-toolbar__divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 0.125rem;
+  }
+
+  // =========================================================================
+  // 接続インジケーター
+  // =========================================================================
+  // React: .connectionIndicatorWrapper + .connectionIndicator
+  // → Angular: .agentation-toolbar__connection-indicator
+
+  .agentation-toolbar__connection-indicator-wrapper {
+    width: 8px;
+    height: 34px;
+    margin-left: 6px;
+    margin-right: 6px;
+  }
+
+  .agentation-toolbar__connection-indicator {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    opacity: 0;
+    transition:
+      opacity 0.3s ease,
+      background 0.3s ease;
+    cursor: default;
+
+    &--visible {
+      opacity: 1;
+    }
+
+    &--connected {
+      background: $green;
+      animation: connectionPulse 2.5s ease-in-out infinite;
+    }
+
+    &--disconnected {
+      background: $red;
+      animation: none;
+    }
+
+    &--connecting {
+      background: #f59e0b;
+      animation: connectionPulse 1s ease-in-out infinite;
+    }
+  }
+
+  // =========================================================================
+  // ホバーハイライト（要素選択時のハイライト表示）
+  // =========================================================================
+  // React: .hoverHighlight → Angular: .agentation-hover-highlight
+  // z-index: 100000
+
+  .agentation-hover-highlight {
+    position: fixed;
+    border: 2px solid rgba($blue, 0.5);
+    border-radius: 4px;
+    pointer-events: none !important;
+    background: rgba($blue, 0.04);
+    box-sizing: border-box;
+    will-change: opacity;
+    contain: layout style;
+    z-index: 100000;
+
+    &--enter {
+      animation: hoverHighlightIn 0.12s ease-out forwards;
+    }
+  }
+
+  // =========================================================================
+  // ホバーラベル（要素名のツールチップ表示）
+  // =========================================================================
+  // React: .hoverTooltip → Angular: .agentation-hover-label
+  // z-index: 100001
+
+  .agentation-hover-label {
+    position: fixed;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.375rem;
+    pointer-events: none !important;
+    white-space: nowrap;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 100001;
+    font-family:
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+
+    &--enter {
+      animation: hoverTooltipIn 0.1s ease-out forwards;
+    }
+  }
+
+  // Angularコンポーネントパス表示
+  .agentation-hover-label__path {
+    font-size: 0.625rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 0.15rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // 要素名表示
+  .agentation-hover-label__element-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // =========================================================================
+  // オーバーレイ
+  // =========================================================================
+
+  .agentation-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99997;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
+
+  // =========================================================================
+  // マルチセレクトアウトライン
+  // =========================================================================
+
+  .agentation-multi-select-outline {
+    position: fixed;
+    border: 2px dashed rgba($green, 0.6);
+    border-radius: 4px;
+    pointer-events: none !important;
+    background: rgba($green, 0.05);
+    box-sizing: border-box;
+    will-change: opacity;
+
+    &--enter {
+      animation: fadeIn 0.15s ease-out forwards;
+    }
+
+    &--exit {
+      animation: fadeOut 0.15s ease-out forwards;
+    }
+  }
+
+  // シングルセレクトアウトライン
+  .agentation-single-select-outline {
+    position: fixed;
+    border: 2px solid rgba($blue, 0.6);
+    border-radius: 4px;
+    pointer-events: none !important;
+    background: rgba($blue, 0.05);
+    box-sizing: border-box;
+    will-change: opacity;
+
+    &--enter {
+      animation: fadeIn 0.15s ease-out forwards;
+    }
+
+    &--exit {
+      animation: fadeOut 0.15s ease-out forwards;
+    }
+  }
+
+  // =========================================================================
+  // マーカーレイヤー
+  // =========================================================================
+  // z-index: 99998 (マーカー用)
+
+  .agentation-markers-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    z-index: 100002;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
+
+  .agentation-fixed-markers-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100002;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
+
+  // =========================================================================
+  // ドラッグ選択
+  // =========================================================================
+
+  .agentation-drag-selection {
+    position: fixed;
+    top: 0;
+    left: 0;
+    border: 2px solid rgba($green, 0.6);
+    border-radius: 4px;
+    background: rgba($green, 0.08);
+    pointer-events: none;
+    z-index: 99997;
+    will-change: transform, width, height;
+    contain: layout style;
+  }
+
+  .agentation-drag-selection__count {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: $green;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    min-width: 1.5rem;
+    text-align: center;
+  }
+
+  // 選択済み要素ハイライト
+  .agentation-selected-highlight {
+    position: fixed;
+    top: 0;
+    left: 0;
+    border: 2px solid rgba($green, 0.5);
+    border-radius: 4px;
+    background: rgba($green, 0.06);
+    pointer-events: none;
+    will-change: transform, width, height;
+    contain: layout style;
+  }
+
+  // =========================================================================
+  // ライトモード（非ダークモード時のスタイル上書き）
+  // =========================================================================
+  // デフォルトはダークモード。ライトモードはダーククラスがない場合に適用。
+
+  &:not(.agentation--dark) {
+    // ツールバーコンテナ
+    .agentation-toolbar {
+      background: #fff;
+      color: rgba(0, 0, 0, 0.85);
+      box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        0 4px 16px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(0, 0, 0, 0.04);
+
+      &--collapsed:hover {
+        background: #f5f5f5;
+      }
+    }
+
+    // トグルボタン
+    .agentation-toolbar__toggle {
+      color: rgba(0, 0, 0, 0.5);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.06);
+        color: rgba(0, 0, 0, 0.85);
+      }
+    }
+
+    // コントロールボタン
+    .agentation-toolbar__button {
+      color: rgba(0, 0, 0, 0.5);
+
+      &:hover:not(:disabled):not(.agentation-toolbar__button--active):not(
+          .agentation-toolbar__button--failed
+        ):not(.agentation-toolbar__button--auto-sync):not(
+          .agentation-toolbar__button--error
+        ):not(.agentation-toolbar__button--no-hover) {
+        background: rgba(0, 0, 0, 0.06);
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      &--active {
+        color: $blue;
+        background: rgba($blue, 0.15);
+      }
+
+      &--error {
+        color: $red;
+        background: rgba($red, 0.15);
+      }
+
+      &--danger {
+        &:hover:not(:disabled):not(.agentation-toolbar__button--active):not(
+            .agentation-toolbar__button--failed
+          ) {
+          background: rgba($red, 0.15);
+          color: $red;
+        }
+      }
+
+      &--auto-sync {
+        color: $green;
+        background: transparent;
+      }
+
+      &--failed {
+        color: $red;
+        background: rgba($red, 0.15);
+      }
+    }
+
+    // ボタンツールチップ
+    .agentation-toolbar__button-tooltip {
+      background: #fff;
+      color: rgba(0, 0, 0, 0.85);
+      box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        0 4px 16px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(0, 0, 0, 0.04);
+
+      &::after {
+        background: #fff;
+      }
+    }
+
+    // ディバイダー
+    .agentation-toolbar__divider {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    // ボタンバッジ
+    .agentation-toolbar__button-badge {
+      box-shadow:
+        0 0 0 2px #fff,
+        0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // ダークモード（明示的なダークモード指定）
+  // デフォルトと同じだが、明示的にクラスが付与された場合のスタイル
+  &.agentation--dark {
+    // デフォルトのダークスタイルがそのまま適用される
+    // 追加のオーバーライドが必要な場合はここに記述
+  }
+}

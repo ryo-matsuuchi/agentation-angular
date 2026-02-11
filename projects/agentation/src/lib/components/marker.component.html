@@ -1,0 +1,22 @@
+<div
+  [class]="markerClass"
+  [ngStyle]="markerStyle"
+  [style.--accent-color]="accentColor"
+  data-feedback-toolbar
+  (click)="onClick($event)"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <div class="agentation-marker__badge">
+    {{ number }}
+  </div>
+  @if (isHovered) {
+    <div class="agentation-marker__action">
+      @if (clickBehavior === 'delete') {
+        <agentation-icon [data]="closeIcon" [size]="10" />
+      } @else {
+        <agentation-icon [data]="editIcon" [size]="10" />
+      }
+    </div>
+  }
+</div>

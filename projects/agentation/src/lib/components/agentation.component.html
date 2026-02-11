@@ -1,0 +1,190 @@
+<div
+  data-agentation
+  [class.agentation--dark]="service.toolbarState().isDarkMode"
+>
+  <!-- フローティングツールバー -->
+  <div
+    class="agentation-toolbar"
+    [style.--accent-color]="service.settings().annotationColor"
+    data-feedback-toolbar
+  >
+    <!-- マスコット/活性化ボタン -->
+    <button
+      class="agentation-toolbar__toggle"
+      (click)="toggleActive()"
+      type="button"
+    >
+      <agentation-icon [data]="icons.bunny" [size]="20" />
+    </button>
+
+    @if (service.isActive()) {
+      <!-- アノテーション数バッジ -->
+      @if (service.hasAnnotations()) {
+        <div class="agentation-toolbar__count">
+          {{ service.annotations().length }}
+        </div>
+      }
+
+      <!-- マーカー表示トグル -->
+      <button
+        class="agentation-toolbar__button"
+        (click)="service.toggleMarkers()"
+        type="button"
+      >
+        <agentation-icon [data]="icons.eyeAnimated" [size]="24" />
+      </button>
+
+      <!-- フリーズトグル -->
+      <button
+        class="agentation-toolbar__button"
+        (click)="service.toggleFreeze()"
+        type="button"
+      >
+        <agentation-icon [data]="icons.pausePlay" [size]="24" />
+      </button>
+
+      <!-- コピー -->
+      <button
+        class="agentation-toolbar__button"
+        (click)="onCopy()"
+        [disabled]="!service.hasAnnotations()"
+        type="button"
+      >
+        <agentation-icon [data]="icons.copy" [size]="24" />
+      </button>
+
+      <!-- エージェントに送信（エンドポイント接続時のみ） -->
+      @if (endpoint && service.syncState().currentSessionId) {
+        <button
+          class="agentation-toolbar__button"
+          (click)="onSendToAgent()"
+          [disabled]="!service.hasAnnotations()"
+          type="button"
+        >
+          <agentation-icon [data]="icons.send" [size]="24" />
+        </button>
+      }
+
+      <!-- 全クリア -->
+      <button
+        class="agentation-toolbar__button agentation-toolbar__button--danger"
+        (click)="onClearAll()"
+        [disabled]="!service.hasAnnotations()"
+        type="button"
+      >
+        <agentation-icon [data]="icons.trash" [size]="16" />
+      </button>
+
+      <!-- 設定 -->
+      <button
+        class="agentation-toolbar__button"
+        (click)="service.toggleSettings()"
+        type="button"
+      >
+        <agentation-icon [data]="icons.gear" [size]="16" />
+      </button>
+
+      <!-- ダークモードトグル -->
+      <button
+        class="agentation-toolbar__button"
+        (click)="service.toggleDarkMode()"
+        type="button"
+      >
+        <agentation-icon
+          [data]="service.toolbarState().isDarkMode ? icons.sun : icons.moon"
+          [size]="16"
+        />
+      </button>
+    }
+  </div>
+
+  <!-- マーカーレイヤー -->
+  @if (service.isActive() && service.showMarkers()) {
+    @for (annotation of service.annotations(); track annotation.id; let i = $index) {
+      <agentation-marker
+        [annotationId]="annotation.id"
+        [number]="i + 1"
+        [x]="annotation.x"
+        [y]="annotation.y"
+        [scrollY]="service.scrollY()"
+        [isFixed]="annotation.isFixed || false"
+        [accentColor]="service.settings().annotationColor"
+        [isExiting]="service.annotationState().exitingMarkers.has(annotation.id)"
+        [isHovered]="service.annotationState().hoveredMarkerId === annotation.id"
+        [clickBehavior]="service.settings().markerClickBehavior"
+        (markerClick)="onMarkerClick($event)"
+        (markerHoverStart)="service.setHoveredMarker($event)"
+        (markerHoverEnd)="service.setHoveredMarker(null)"
+      />
+    }
+  }
+
+  <!-- ホバーハイライト -->
+  @if (service.isActive() && service.hoverInfo()?.rect) {
+    <div
+      class="agentation-hover-highlight"
+      [style.position]="'fixed'"
+      [style.left.px]="service.hoverInfo()!.rect!.left"
+      [style.top.px]="service.hoverInfo()!.rect!.top"
+      [style.width.px]="service.hoverInfo()!.rect!.width"
+      [style.height.px]="service.hoverInfo()!.rect!.height"
+      [style.border]="'2px solid ' + service.settings().annotationColor"
+      [style.backgroundColor]="hexToRgba(service.settings().annotationColor, 0.1)"
+      [style.pointerEvents]="'none'"
+      [style.zIndex]="'100000'"
+      [style.borderRadius]="'4px'"
+    ></div>
+  }
+
+  <!-- ホバーラベル -->
+  @if (service.isActive() && service.hoverInfo()?.element) {
+    <div
+      class="agentation-hover-label"
+      [style.position]="'fixed'"
+      [style.left.px]="service.hoverPosition().x + 16"
+      [style.top.px]="service.hoverPosition().y + 16"
+      [style.zIndex]="'100001'"
+      [style.pointerEvents]="'none'"
+    >
+      {{ service.hoverInfo()!.element }}
+    </div>
+  }
+
+  <!-- アノテーションポップアップ（新規作成） -->
+  @if (service.pendingAnnotation()) {
+    <agentation-popup
+      [element]="service.pendingAnnotation()!.element"
+      [selectedText]="service.pendingAnnotation()!.selectedText"
+      [accentColor]="service.settings().annotationColor"
+      [lightMode]="!service.toolbarState().isDarkMode"
+      [computedStyles]="service.pendingAnnotation()!.computedStylesObj"
+      [positionStyle]="{
+        position: 'fixed',
+        left: service.pendingAnnotation()!.x + '%',
+        top: service.pendingAnnotation()!.clientY + 'px'
+      }"
+      (submitText)="onAnnotationSubmit($event)"
+      (cancel)="service.cancelPending()"
+    />
+  }
+
+  <!-- アノテーションポップアップ（編集） -->
+  @if (service.editingAnnotation()) {
+    <agentation-popup
+      [element]="service.editingAnnotation()!.element"
+      [initialValue]="service.editingAnnotation()!.comment"
+      [submitLabel]="'Save'"
+      [accentColor]="service.settings().annotationColor"
+      [lightMode]="!service.toolbarState().isDarkMode"
+      [showDelete]="true"
+      [positionStyle]="{
+        position: 'fixed',
+        left: service.editingAnnotation()!.x + '%',
+        top: (service.editingAnnotation()!.isFixed ? service.editingAnnotation()!.y : service.editingAnnotation()!.y - service.scrollY()) + 'px'
+      }"
+      (submitText)="onAnnotationEditSubmit($event)"
+      (cancel)="service.cancelEditing()"
+      (delete)="onDeleteFromPopup(service.editingAnnotation()!.id)"
+    />
+  }
+</div>

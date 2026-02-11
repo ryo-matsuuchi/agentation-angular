@@ -1,0 +1,103 @@
+<div
+  [class]="popupClass"
+  [ngStyle]="positionStyle || {}"
+  data-annotation-popup
+  (click)="$event.stopPropagation()"
+>
+  <!-- ヘッダー -->
+  <div class="agentation-popup__header">
+    @if (computedStyles && styleEntries.length > 0) {
+      <button
+        class="agentation-popup__header-toggle"
+        (click)="toggleStyles()"
+        type="button"
+      >
+        <svg
+          class="agentation-popup__chevron"
+          [class.agentation-popup__chevron--expanded]="isStylesExpanded()"
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+        >
+          <path
+            d="M5.5 10.25L9 7.25L5.75 4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span class="agentation-popup__element">{{ element }}</span>
+      </button>
+    } @else {
+      <span class="agentation-popup__element">{{ element }}</span>
+    }
+    @if (timestamp) {
+      <span class="agentation-popup__timestamp">{{ timestamp }}</span>
+    }
+  </div>
+
+  <!-- ComputedStylesアコーディオン -->
+  @if (computedStyles && styleEntries.length > 0) {
+    <div
+      class="agentation-popup__styles-wrapper"
+      [class.agentation-popup__styles-wrapper--expanded]="isStylesExpanded()"
+    >
+      <div class="agentation-popup__styles-inner">
+        <div class="agentation-popup__styles-block">
+          @for (entry of styleEntries; track entry[0]) {
+            <div class="agentation-popup__style-line">
+              <span class="agentation-popup__style-property">{{ toKebabCase(entry[0]) }}</span>
+              : <span class="agentation-popup__style-value">{{ entry[1] }}</span>;
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- 選択テキスト引用 -->
+  @if (selectedText) {
+    <div class="agentation-popup__quote">
+      &ldquo;{{ selectedText.length > 80 ? selectedText.slice(0, 80) + '...' : selectedText }}&rdquo;
+    </div>
+  }
+
+  <!-- テキスト入力 -->
+  <textarea
+    #textareaRef
+    class="agentation-popup__textarea"
+    [style.borderColor]="isFocused() ? accentColor : null"
+    [placeholder]="placeholder"
+    [value]="text()"
+    (input)="onTextChange($any($event.target).value)"
+    (focus)="isFocused.set(true)"
+    (blur)="isFocused.set(false)"
+    rows="2"
+    (keydown)="handleKeyDown($event)"
+  ></textarea>
+
+  <!-- アクションボタン -->
+  <div class="agentation-popup__actions">
+    @if (showDelete) {
+      <div class="agentation-popup__delete-wrapper">
+        <button class="agentation-popup__delete-button" (click)="delete.emit()" type="button">
+          <agentation-icon [data]="trashIcon" [size]="22" />
+        </button>
+      </div>
+    }
+    <button class="agentation-popup__cancel" (click)="handleCancel()">
+      Cancel
+    </button>
+    <button
+      class="agentation-popup__submit"
+      [style.backgroundColor]="accentColor"
+      [style.opacity]="text().trim() ? '1' : '0.4'"
+      (click)="handleSubmit()"
+      [disabled]="!text().trim()"
+    >
+      {{ submitLabel }}
+    </button>
+  </div>
+</div>

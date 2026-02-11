@@ -1,0 +1,6 @@
+packages:
+  - 'package'
+  - 'package/example'
+  - 'mcp'
+  - 'projects/agentation'
+  - 'projects/demo'
