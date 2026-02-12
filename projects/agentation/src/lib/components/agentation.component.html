@@ -15,6 +15,14 @@
       type="button"
     >
       <agentation-icon [data]="icons.bunny" [size]="20" />
+      @if (!service.isActive() && service.hasAnnotations()) {
+        <span
+          class="agentation-toolbar__badge"
+          [style.backgroundColor]="service.settings().annotationColor"
+        >
+          {{ service.annotations().length }}
+        </span>
+      }
     </button>
 
     @if (service.isActive()) {
@@ -60,6 +68,7 @@
           (click)="onSendToAgent()"
           [disabled]="!service.hasAnnotations()"
           type="button"
+          title="Send Annotations"
         >
           <agentation-icon [data]="icons.send" [size]="24" />
         </button>
@@ -72,7 +81,7 @@
         [disabled]="!service.hasAnnotations()"
         type="button"
       >
-        <agentation-icon [data]="icons.trash" [size]="16" />
+        <agentation-icon [data]="icons.trash" [size]="24" />
       </button>
 
       <!-- 設定 -->
@@ -81,7 +90,14 @@
         (click)="service.toggleSettings()"
         type="button"
       >
-        <agentation-icon [data]="icons.gear" [size]="16" />
+        <agentation-icon [data]="icons.gear" [size]="24" />
+        @if (endpoint && service.connectionStatus() !== 'disconnected') {
+          <span class="agentation-toolbar__settings-badge"
+            [class.agentation-toolbar__settings-badge--connected]="service.connectionStatus() === 'connected'"
+            [class.agentation-toolbar__settings-badge--connecting]="service.connectionStatus() === 'connecting'"
+            [class.agentation-toolbar__settings-badge--error]="service.connectionStatus() === 'error'"
+          ></span>
+        }
       </button>
 
       <!-- ダークモードトグル -->
@@ -92,11 +108,16 @@
       >
         <agentation-icon
           [data]="service.toolbarState().isDarkMode ? icons.sun : icons.moon"
-          [size]="16"
+          [size]="24"
         />
       </button>
     }
   </div>
+
+  <!-- 設定パネル -->
+  @if (service.toolbarState().showSettings && service.isActive()) {
+    <agentation-settings [service]="service" [endpoint]="endpoint || ''" />
+  }
 
   <!-- マーカーレイヤー -->
   @if (service.isActive() && service.showMarkers()) {
@@ -120,7 +141,7 @@
   }
 
   <!-- ホバーハイライト -->
-  @if (service.isActive() && service.hoverInfo()?.rect) {
+  @if (service.isActive() && service.hoverInfo()?.rect && !isDragging()) {
     <div
       class="agentation-hover-highlight"
       [style.position]="'fixed'"
@@ -137,7 +158,7 @@
   }
 
   <!-- ホバーラベル -->
-  @if (service.isActive() && service.hoverInfo()?.element) {
+  @if (service.isActive() && service.hoverInfo()?.element && !isDragging()) {
     <div
       class="agentation-hover-label"
       [style.position]="'fixed'"
@@ -153,6 +174,7 @@
   <!-- アノテーションポップアップ（新規作成） -->
   @if (service.pendingAnnotation()) {
     <agentation-popup
+      #pendingPopup
       [element]="service.pendingAnnotation()!.element"
       [selectedText]="service.pendingAnnotation()!.selectedText"
       [accentColor]="service.settings().annotationColor"
@@ -171,6 +193,7 @@
   <!-- アノテーションポップアップ（編集） -->
   @if (service.editingAnnotation()) {
     <agentation-popup
+      #editPopup
       [element]="service.editingAnnotation()!.element"
       [initialValue]="service.editingAnnotation()!.comment"
       [submitLabel]="'Save'"
@@ -186,5 +209,13 @@
       (cancel)="service.cancelEditing()"
       (delete)="onDeleteFromPopup(service.editingAnnotation()!.id)"
     />
+  }
+
+  <!-- ドラッグ選択UI -->
+  @if (isDragging()) {
+    <div class="agentation-drag-selection" [ngStyle]="dragRectStyle()"></div>
+    @for (rect of dragHighlightRects(); track $index) {
+      <div class="agentation-selected-highlight" [ngStyle]="rectToStyle(rect)"></div>
+    }
   }
 </div>

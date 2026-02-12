@@ -18,12 +18,15 @@ import {
   OnDestroy,
   inject,
   effect,
+  signal,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { MarkerComponent } from './marker.component';
 import { PopupComponent } from './popup.component';
+import { SettingsComponent } from './settings.component';
 import { IconComponent } from '../icons/icon.component';
 import { AgentationOverlayContainer } from './overlay-container';
 import { AgentationService } from '../services/agentation.service';
@@ -55,6 +58,7 @@ import type { Annotation } from '../types';
     OverlayModule,
     MarkerComponent,
     PopupComponent,
+    SettingsComponent,
     IconComponent,
   ],
   templateUrl: './agentation.component.html',
@@ -111,6 +115,26 @@ export class AgentationComponent implements OnInit, OnDestroy {
   // ユーティリティ公開（テンプレートで使用）
   readonly hexToRgba = hexToRgba;
 
+  // ポップアップ参照（shake用）
+  @ViewChild('pendingPopup') pendingPopup?: PopupComponent;
+  @ViewChild('editPopup') editPopup?: PopupComponent;
+
+  // ドラッグ選択の状態
+  readonly isDragging = signal(false);
+  readonly dragRectStyle = signal<Record<string, string>>({});
+  readonly dragHighlightRects = signal<DOMRect[]>([]);
+
+  /** DOMRectをngStyleオブジェクトに変換 */
+  rectToStyle(rect: DOMRect): Record<string, string> {
+    return {
+      position: 'fixed',
+      left: rect.left + 'px',
+      top: rect.top + 'px',
+      width: rect.width + 'px',
+      height: rect.height + 'px',
+    };
+  }
+
   constructor() {
     // isActive変更を監視してDOMイベントをattach/detach
     effect(() => {
@@ -161,6 +185,17 @@ export class AgentationComponent implements OnInit, OnDestroy {
 
     this.domEvents.elementClick$.subscribe(result => {
       if (!this.service.isActive()) return;
+
+      // ポップアップ表示中はshakeして新規作成しない（React版準拠）
+      if (this.service.pendingAnnotation()) {
+        this.pendingPopup?.shake();
+        return;
+      }
+      if (this.service.editingAnnotation()) {
+        this.editPopup?.shake();
+        return;
+      }
+
       this.service.startAnnotation({
         x: result.x,
         y: result.y,
@@ -190,6 +225,66 @@ export class AgentationComponent implements OnInit, OnDestroy {
       } else if (this.service.isActive()) {
         this.service.deactivate();
       }
+    });
+
+    // ドラッグ選択イベント購読
+    this.domEvents.dragStateChange$.subscribe(isDragging => {
+      this.isDragging.set(isDragging);
+      if (isDragging) {
+        // ドラッグ開始時にホバー情報をクリア
+        this.service.updateHover(null, { x: 0, y: 0 });
+      }
+    });
+
+    this.domEvents.dragRect$.subscribe(rect => {
+      if (rect) {
+        this.dragRectStyle.set({
+          position: 'fixed',
+          left: rect.left + 'px',
+          top: rect.top + 'px',
+          width: rect.width + 'px',
+          height: rect.height + 'px',
+        });
+      }
+    });
+
+    this.domEvents.dragHighlights$.subscribe(rects => {
+      this.dragHighlightRects.set(rects);
+    });
+
+    this.domEvents.dragComplete$.subscribe(result => {
+      if (!this.service.isActive()) return;
+
+      // ポップアップ表示中はshakeして新規作成しない（React版準拠）
+      if (this.service.pendingAnnotation()) {
+        this.pendingPopup?.shake();
+        return;
+      }
+      if (this.service.editingAnnotation()) {
+        this.editPopup?.shake();
+        return;
+      }
+
+      this.service.startAnnotation({
+        x: result.x,
+        y: result.y,
+        clientY: result.clientY,
+        element: result.element,
+        elementPath: result.elementPath,
+        selectedText: result.selectedText,
+        boundingBox: result.boundingBox,
+        nearbyText: result.nearbyText,
+        cssClasses: result.cssClasses,
+        isFixed: result.isFixed,
+        isMultiSelect: result.isMultiSelect,
+        fullPath: result.fullPath,
+        accessibility: result.accessibility,
+        computedStyles: result.computedStyles,
+        computedStylesObj: result.computedStylesObj,
+        nearbyElements: result.nearbyElements,
+        angularComponents: result.angularComponents,
+        targetElement: result.targetElement,
+      });
     });
 
     this.domEvents.scrollChange$.subscribe(y => {
