@@ -174,7 +174,7 @@
   <!-- アノテーションポップアップ（新規作成） -->
   @if (service.pendingAnnotation()) {
     <agentation-popup
-      #pendingPopup
+      [shakeTrigger]="pendingShakeCount()"
       [element]="service.pendingAnnotation()!.element"
       [selectedText]="service.pendingAnnotation()!.selectedText"
       [accentColor]="service.settings().annotationColor"
@@ -193,7 +193,7 @@
   <!-- アノテーションポップアップ（編集） -->
   @if (service.editingAnnotation()) {
     <agentation-popup
-      #editPopup
+      [shakeTrigger]="editShakeCount()"
       [element]="service.editingAnnotation()!.element"
       [initialValue]="service.editingAnnotation()!.comment"
       [submitLabel]="'Save'"

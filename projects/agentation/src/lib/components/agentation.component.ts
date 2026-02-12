@@ -19,7 +19,7 @@ import {
   inject,
   effect,
   signal,
-  ViewChild,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OverlayModule } from '@angular/cdk/overlay';
@@ -95,6 +95,7 @@ export class AgentationComponent implements OnInit, OnDestroy {
   readonly service = inject(AgentationService);
   private readonly domEvents = inject(DOMEventService);
   private readonly serverSync = inject(ServerSyncService);
+  private readonly ngZone = inject(NgZone);
 
   // ===== アイコンデータ =====
   readonly icons = {
@@ -115,9 +116,9 @@ export class AgentationComponent implements OnInit, OnDestroy {
   // ユーティリティ公開（テンプレートで使用）
   readonly hexToRgba = hexToRgba;
 
-  // ポップアップ参照（shake用）
-  @ViewChild('pendingPopup') pendingPopup?: PopupComponent;
-  @ViewChild('editPopup') editPopup?: PopupComponent;
+  // shakeトリガーカウンター（signal inputベース）
+  readonly pendingShakeCount = signal(0);
+  readonly editShakeCount = signal(0);
 
   // ドラッグ選択の状態
   readonly isDragging = signal(false);
@@ -188,11 +189,11 @@ export class AgentationComponent implements OnInit, OnDestroy {
 
       // ポップアップ表示中はshakeして新規作成しない（React版準拠）
       if (this.service.pendingAnnotation()) {
-        this.pendingPopup?.shake();
+        this.ngZone.run(() => this.pendingShakeCount.update(v => (v + 1) % 1000000));
         return;
       }
       if (this.service.editingAnnotation()) {
-        this.editPopup?.shake();
+        this.ngZone.run(() => this.editShakeCount.update(v => (v + 1) % 1000000));
         return;
       }
 
@@ -257,11 +258,11 @@ export class AgentationComponent implements OnInit, OnDestroy {
 
       // ポップアップ表示中はshakeして新規作成しない（React版準拠）
       if (this.service.pendingAnnotation()) {
-        this.pendingPopup?.shake();
+        this.ngZone.run(() => this.pendingShakeCount.update(v => (v + 1) % 1000000));
         return;
       }
       if (this.service.editingAnnotation()) {
-        this.editPopup?.shake();
+        this.ngZone.run(() => this.editShakeCount.update(v => (v + 1) % 1000000));
         return;
       }
 
