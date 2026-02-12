@@ -2,6 +2,8 @@ import { EventEmitter, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import * as i0 from "@angular/core";
 type AnimState = 'initial' | 'enter' | 'entered' | 'exit';
 export declare class PopupComponent implements OnInit, OnDestroy {
+    /** shakeアニメーションのトリガー（signal input） */
+    readonly shakeTrigger: import("@angular/core").InputSignal<number>;
     /** 要素名（ヘッダー表示用） */
     element: string;
     /** タイムスタンプ表示 */
@@ -39,6 +41,7 @@ export declare class PopupComponent implements OnInit, OnDestroy {
     readonly isFocused: import("@angular/core").WritableSignal<boolean>;
     readonly isStylesExpanded: import("@angular/core").WritableSignal<boolean>;
     readonly trashIcon: import("../icons/icon-data").IconData;
+    constructor();
     private cancelTimer;
     private shakeTimer;
     private enterTimer;
@@ -64,6 +67,6 @@ export declare class PopupComponent implements OnInit, OnDestroy {
     /** ポップアップのCSSクラス算出 */
     get popupClass(): string;
     static ɵfac: i0.ɵɵFactoryDeclaration<PopupComponent, never>;
-    static ɵcmp: i0.ɵɵComponentDeclaration<PopupComponent, "agentation-popup", never, { "element": { "alias": "element"; "required": true; }; "timestamp": { "alias": "timestamp"; "required": false; }; "selectedText": { "alias": "selectedText"; "required": false; }; "placeholder": { "alias": "placeholder"; "required": false; }; "initialValue": { "alias": "initialValue"; "required": false; }; "submitLabel": { "alias": "submitLabel"; "required": false; }; "accentColor": { "alias": "accentColor"; "required": false; }; "isExiting": { "alias": "isExiting"; "required": false; }; "lightMode": { "alias": "lightMode"; "required": false; }; "computedStyles": { "alias": "computedStyles"; "required": false; }; "positionStyle": { "alias": "positionStyle"; "required": false; }; "showDelete": { "alias": "showDelete"; "required": false; }; }, { "submitText": "submitText"; "cancel": "cancel"; "delete": "delete"; }, never, never, true, never>;
+    static ɵcmp: i0.ɵɵComponentDeclaration<PopupComponent, "agentation-popup", never, { "shakeTrigger": { "alias": "shakeTrigger"; "required": false; "isSignal": true; }; "element": { "alias": "element"; "required": true; }; "timestamp": { "alias": "timestamp"; "required": false; }; "selectedText": { "alias": "selectedText"; "required": false; }; "placeholder": { "alias": "placeholder"; "required": false; }; "initialValue": { "alias": "initialValue"; "required": false; }; "submitLabel": { "alias": "submitLabel"; "required": false; }; "accentColor": { "alias": "accentColor"; "required": false; }; "isExiting": { "alias": "isExiting"; "required": false; }; "lightMode": { "alias": "lightMode"; "required": false; }; "computedStyles": { "alias": "computedStyles"; "required": false; }; "positionStyle": { "alias": "positionStyle"; "required": false; }; "showDelete": { "alias": "showDelete"; "required": false; }; }, { "submitText": "submitText"; "cancel": "cancel"; "delete": "delete"; }, never, never, true, never>;
 }
 export {};

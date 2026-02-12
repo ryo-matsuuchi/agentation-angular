@@ -1,5 +1,4 @@
 import { EventEmitter, OnInit, OnDestroy } from '@angular/core';
-import { PopupComponent } from './popup.component';
 import { AgentationService } from '../services/agentation.service';
 import { hexToRgba } from '../utils/helpers';
 import type { Annotation } from '../types';
@@ -22,6 +21,7 @@ export declare class AgentationComponent implements OnInit, OnDestroy {
     readonly service: AgentationService;
     private readonly domEvents;
     private readonly serverSync;
+    private readonly ngZone;
     readonly icons: {
         plus: import("../icons/icon-data").IconData;
         eyeAnimated: import("../icons/icon-data").AnimatedIconData;
@@ -37,8 +37,8 @@ export declare class AgentationComponent implements OnInit, OnDestroy {
         bunny: import("../icons/icon-data").AnimatedIconData;
     };
     readonly hexToRgba: typeof hexToRgba;
-    pendingPopup?: PopupComponent;
-    editPopup?: PopupComponent;
+    readonly pendingShakeCount: import("@angular/core").WritableSignal<number>;
+    readonly editShakeCount: import("@angular/core").WritableSignal<number>;
     readonly isDragging: import("@angular/core").WritableSignal<boolean>;
     readonly dragRectStyle: import("@angular/core").WritableSignal<Record<string, string>>;
     readonly dragHighlightRects: import("@angular/core").WritableSignal<DOMRect[]>;

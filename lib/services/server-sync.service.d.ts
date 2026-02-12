@@ -17,7 +17,7 @@ export declare class ServerSyncService {
     private readonly BASE_BACKOFF_MS;
     private endpoint;
     private sessionId;
-    readonly connectionStatus: import("@angular/core").WritableSignal<"error" | "disconnected" | "connecting" | "connected">;
+    readonly connectionStatus: import("@angular/core").WritableSignal<"disconnected" | "connecting" | "connected" | "error">;
     readonly serverEvent$: Subject<ServerAnnotationEvent>;
     private healthCheckInterval;
     constructor();

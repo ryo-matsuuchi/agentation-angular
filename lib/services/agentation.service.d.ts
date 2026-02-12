@@ -98,7 +98,7 @@ export declare class AgentationService {
     readonly editingAnnotation: import("@angular/core").Signal<Annotation>;
     readonly showMarkers: import("@angular/core").Signal<boolean>;
     readonly markersVisible: import("@angular/core").Signal<boolean>;
-    readonly connectionStatus: import("@angular/core").Signal<"error" | "disconnected" | "connecting" | "connected">;
+    readonly connectionStatus: import("@angular/core").Signal<"disconnected" | "connecting" | "connected" | "error">;
     readonly currentSessionId: import("@angular/core").Signal<string>;
     readonly angularMode: import("@angular/core").Signal<AngularComponentMode>;
     private endpoint;
