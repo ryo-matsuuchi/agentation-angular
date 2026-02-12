@@ -49,7 +49,7 @@
         (click)="service.toggleFreeze()"
         type="button"
       >
-        <agentation-icon [data]="icons.pausePlay" [size]="24" />
+        <agentation-icon [data]="icons.pausePlay" [size]="24" [variant]="service.isFrozen() ? 'play' : 'pause'" />
       </button>
 
       <!-- コピー -->
@@ -187,7 +187,7 @@
         top: service.pendingAnnotation()!.clientY + 'px'
       }"
       (submitText)="onAnnotationSubmit($event)"
-      (cancel)="service.cancelPending()"
+      (cancel)="onCancelPending()"
     />
   }
 
@@ -212,11 +212,13 @@
     />
   }
 
-  <!-- ドラッグ選択UI -->
+  <!-- ドラッグ選択ボックス（ドラッグ中のみ） -->
   @if (isDragging()) {
     <div class="agentation-drag-selection" [ngStyle]="dragRectStyle()"></div>
-    @for (rect of dragHighlightRects(); track $index) {
-      <div class="agentation-selected-highlight" [ngStyle]="rectToStyle(rect)"></div>
-    }
+  }
+
+  <!-- 選択要素ハイライト（ドラッグ中 OR ポップアップ表示中） -->
+  @for (rect of (isDragging() ? dragHighlightRects() : pendingHighlightRects()); track $index) {
+    <div class="agentation-selected-highlight" [ngStyle]="rectToStyle(rect)"></div>
   }
 </div>
