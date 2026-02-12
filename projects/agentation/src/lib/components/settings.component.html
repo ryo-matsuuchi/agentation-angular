@@ -1,0 +1,204 @@
+@if (!showMcpPanel()) {
+<div [class]="panelClass" data-agentation>
+  <!-- ヘッダー -->
+  <div class="agentation-settings__header">
+    <span class="agentation-settings__title">Settings</span>
+    <button
+      class="agentation-settings__close"
+      (click)="close()"
+      type="button"
+    >
+      ✕
+    </button>
+  </div>
+
+  <!-- 出力設定セクション -->
+  <div class="agentation-settings__section">
+    <label class="agentation-settings__label">Output Detail</label>
+    <select
+      class="agentation-settings__select"
+      [ngModel]="service.settings().outputDetail"
+      (ngModelChange)="onOutputDetailChange($event)"
+    >
+      @for (option of outputDetailOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- アノテーションカラーセクション -->
+  <div class="agentation-settings__section">
+    <label class="agentation-settings__label">Annotation Color</label>
+    <div class="agentation-settings__colors">
+      @for (color of colorOptions; track color.value) {
+        <button
+          class="agentation-settings__color-swatch"
+          [class.agentation-settings__color-swatch--active]="service.settings().annotationColor === color.value"
+          [style.backgroundColor]="color.value"
+          [title]="color.label"
+          (click)="onColorChange(color.value)"
+          type="button"
+        ></button>
+      }
+    </div>
+  </div>
+
+  <!-- マーカークリック動作セクション -->
+  <div class="agentation-settings__section">
+    <label class="agentation-settings__label">Marker Click</label>
+    <select
+      class="agentation-settings__select"
+      [ngModel]="service.settings().markerClickBehavior"
+      (ngModelChange)="onMarkerClickChange($event)"
+    >
+      @for (option of markerClickOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- トグルセクション -->
+  <div class="agentation-settings__section">
+    <div class="agentation-settings__toggle-row">
+      <span class="agentation-settings__toggle-label">Auto-clear after copy</span>
+      <button
+        class="agentation-settings__toggle-button"
+        [class.agentation-settings__toggle-button--active]="service.settings().autoClearAfterCopy"
+        (click)="onAutoClearToggle()"
+        type="button"
+      >
+        <span class="agentation-settings__toggle-knob"></span>
+      </button>
+    </div>
+
+    <div class="agentation-settings__toggle-row">
+      <span class="agentation-settings__toggle-label">Block interactions</span>
+      <button
+        class="agentation-settings__toggle-button"
+        [class.agentation-settings__toggle-button--active]="service.settings().blockInteractions"
+        (click)="onBlockInteractionsToggle()"
+        type="button"
+      >
+        <span class="agentation-settings__toggle-knob"></span>
+      </button>
+    </div>
+
+    <div class="agentation-settings__toggle-row">
+      <span class="agentation-settings__toggle-label">Angular detection</span>
+      <button
+        class="agentation-settings__toggle-button"
+        [class.agentation-settings__toggle-button--active]="service.settings().angularEnabled"
+        (click)="onAngularToggle()"
+        type="button"
+      >
+        <span class="agentation-settings__toggle-knob"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Webhook設定セクション -->
+  <div class="agentation-settings__section">
+    @if (endpoint) {
+      <!-- MCP接続時: ナビゲーションリンク -->
+      <button class="agentation-settings__nav-link" (click)="onOpenMcpPanel()" type="button">
+        <span>Manage MCP & Webhooks</span>
+        <span class="agentation-settings__nav-link-right">
+          @if (service.connectionStatus() === 'connected') {
+            <span class="agentation-settings__nav-dot agentation-settings__nav-dot--connected"></span>
+          } @else if (service.connectionStatus() === 'connecting') {
+            <span class="agentation-settings__nav-dot agentation-settings__nav-dot--connecting"></span>
+          }
+          <svg width="7" height="12" viewBox="0 0 7 12" fill="none">
+            <path d="M1 1L5.5 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+    } @else {
+      <!-- MCP未接続時: 従来のWebhookインラインUI -->
+      <div class="agentation-settings__toggle-row">
+        <span class="agentation-settings__toggle-label">Webhooks</span>
+        <button
+          class="agentation-settings__toggle-button"
+          [class.agentation-settings__toggle-button--active]="service.settings().webhooksEnabled"
+          (click)="onWebhooksToggle()"
+          type="button"
+        >
+          <span class="agentation-settings__toggle-knob"></span>
+        </button>
+      </div>
+
+      @if (service.settings().webhooksEnabled) {
+        <div class="agentation-settings__webhook-url">
+          <input
+            class="agentation-settings__input"
+            type="url"
+            placeholder="https://example.com/webhook"
+            [ngModel]="service.settings().webhookUrl"
+            (ngModelChange)="onWebhookUrlChange($event)"
+          />
+        </div>
+      }
+    }
+  </div>
+</div>
+} @else {
+<!-- MCPサブビュー -->
+<div [class]="panelClass" data-agentation>
+  <!-- 戻るボタン -->
+  <button class="agentation-settings__back-button" (click)="onCloseMcpPanel()" type="button">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8.5 3.5L4 8L8.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Manage MCP & Webhooks</span>
+  </button>
+
+  <!-- MCP Connectionセクション -->
+  <div class="agentation-settings__section">
+    <div class="agentation-settings__section-row">
+      <span class="agentation-settings__section-header">MCP Connection</span>
+      @if (endpoint) {
+        <div
+          class="agentation-settings__mcp-dot"
+          [class.agentation-settings__mcp-dot--connected]="service.connectionStatus() === 'connected'"
+          [class.agentation-settings__mcp-dot--connecting]="service.connectionStatus() === 'connecting'"
+          [class.agentation-settings__mcp-dot--disconnected]="service.connectionStatus() === 'disconnected'"
+        ></div>
+      }
+    </div>
+    <p class="agentation-settings__description">
+      MCP connection allows agents to receive and act on annotations.
+    </p>
+  </div>
+
+  <!-- Webhooksセクション -->
+  <div class="agentation-settings__section">
+    <div class="agentation-settings__section-row">
+      <span class="agentation-settings__section-header">Webhooks</span>
+      <div class="agentation-settings__auto-send-row">
+        <span
+          class="agentation-settings__auto-send-label"
+          [class.agentation-settings__auto-send-label--active]="service.settings().webhooksEnabled"
+        >Auto-Send</span>
+        <button
+          class="agentation-settings__toggle-button"
+          [class.agentation-settings__toggle-button--active]="service.settings().webhooksEnabled"
+          [disabled]="!service.settings().webhookUrl"
+          (click)="onWebhooksToggle()"
+          type="button"
+        >
+          <span class="agentation-settings__toggle-knob"></span>
+        </button>
+      </div>
+    </div>
+    <p class="agentation-settings__description">
+      The webhook URL will receive live annotation changes and annotation data.
+    </p>
+    <textarea
+      class="agentation-settings__webhook-textarea"
+      placeholder="Webhook URL"
+      [ngModel]="service.settings().webhookUrl"
+      (ngModelChange)="onWebhookUrlChange($event)"
+    ></textarea>
+  </div>
+</div>
+}

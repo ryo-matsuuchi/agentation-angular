@@ -66,12 +66,14 @@ $green: #34c759;
   // ===========================================================================
   // ポップアップコンテナ
   // ===========================================================================
+  // 注意: data-annotation-popup と .agentation-popup は同一要素上にあるため、
+  // 子孫セレクタではなく複合セレクタ（&.class）を使用する
 
-  .agentation-popup {
+  &.agentation-popup {
     position: fixed;
     transform: translateX(-50%);
     width: 280px;
-    padding: 0.75rem 1rem 14px;
+    padding: 12px 16px 14px;
     background: #1a1a1a;
     border-radius: 16px;
     box-shadow:
@@ -90,101 +92,101 @@ $green: #34c759;
 
     // 初期状態（アニメーション前）
     opacity: 0;
+  }
 
-    // 入場アニメーション
-    &--enter {
-      animation: popupEnter 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  // 入場アニメーション
+  &.agentation-popup--enter {
+    animation: popupEnter 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  // 入場完了後の安定状態
+  &.agentation-popup--entered {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+
+  // 退場アニメーション
+  &.agentation-popup--exit {
+    animation: popupExit 0.15s ease-in forwards;
+  }
+
+  // シェイクアニメーション（入場完了状態が前提）
+  &.agentation-popup--entered.agentation-popup--shake {
+    animation: shake 0.25s ease-out;
+  }
+
+  // =========================================================================
+  // ライトモード
+  // =========================================================================
+
+  &.agentation-popup--light {
+    background: #fff;
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.12),
+      0 0 0 1px rgba(0, 0, 0, 0.06);
+
+    .agentation-popup__element {
+      color: rgba(0, 0, 0, 0.6);
     }
 
-    // 入場完了後の安定状態
-    &--entered {
-      opacity: 1;
-      transform: translateX(-50%) scale(1) translateY(0);
+    .agentation-popup__timestamp {
+      color: rgba(0, 0, 0, 0.4);
     }
 
-    // 退場アニメーション
-    &--exit {
-      animation: popupExit 0.15s ease-in forwards;
+    .agentation-popup__chevron {
+      color: rgba(0, 0, 0, 0.4);
     }
 
-    // シェイクアニメーション（入場完了状態が前提）
-    &--entered#{&}--shake {
-      animation: shake 0.25s ease-out;
+    .agentation-popup__styles-block {
+      background: rgba(0, 0, 0, 0.03);
     }
 
-    // =========================================================================
-    // ライトモード
-    // =========================================================================
+    .agentation-popup__style-line {
+      color: rgba(0, 0, 0, 0.75);
+    }
 
-    &--light {
-      background: #fff;
-      box-shadow:
-        0 4px 24px rgba(0, 0, 0, 0.12),
-        0 0 0 1px rgba(0, 0, 0, 0.06);
+    .agentation-popup__style-property {
+      color: #7c3aed;
+    }
 
-      .agentation-popup__element {
-        color: rgba(0, 0, 0, 0.6);
-      }
+    .agentation-popup__style-value {
+      color: rgba(0, 0, 0, 0.75);
+    }
 
-      .agentation-popup__timestamp {
+    .agentation-popup__quote {
+      color: rgba(0, 0, 0, 0.55);
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .agentation-popup__textarea {
+      background: rgba(0, 0, 0, 0.03);
+      color: #1a1a1a;
+      border-color: rgba(0, 0, 0, 0.12);
+
+      &::placeholder {
         color: rgba(0, 0, 0, 0.4);
       }
 
-      .agentation-popup__chevron {
-        color: rgba(0, 0, 0, 0.4);
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.15);
       }
+    }
 
-      .agentation-popup__styles-block {
-        background: rgba(0, 0, 0, 0.03);
-      }
+    .agentation-popup__cancel {
+      color: rgba(0, 0, 0, 0.5);
 
-      .agentation-popup__style-line {
+      &:hover {
+        background: rgba(0, 0, 0, 0.06);
         color: rgba(0, 0, 0, 0.75);
       }
+    }
 
-      .agentation-popup__style-property {
-        color: #7c3aed;
-      }
+    .agentation-popup__delete-button {
+      color: rgba(0, 0, 0, 0.4);
 
-      .agentation-popup__style-value {
-        color: rgba(0, 0, 0, 0.75);
-      }
-
-      .agentation-popup__quote {
-        color: rgba(0, 0, 0, 0.55);
-        background: rgba(0, 0, 0, 0.04);
-      }
-
-      .agentation-popup__textarea {
-        background: rgba(0, 0, 0, 0.03);
-        color: #1a1a1a;
-        border-color: rgba(0, 0, 0, 0.12);
-
-        &::placeholder {
-          color: rgba(0, 0, 0, 0.4);
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.15);
-        }
-      }
-
-      .agentation-popup__cancel {
-        color: rgba(0, 0, 0, 0.5);
-
-        &:hover {
-          background: rgba(0, 0, 0, 0.06);
-          color: rgba(0, 0, 0, 0.75);
-        }
-      }
-
-      .agentation-popup__delete-button {
-        color: rgba(0, 0, 0, 0.4);
-
-        &:hover {
-          background: rgba(255, 59, 48, 0.15);
-          color: #ff3b30;
-        }
+      &:hover {
+        background: rgba(255, 59, 48, 0.15);
+        color: #ff3b30;
       }
     }
   }
@@ -197,11 +199,11 @@ $green: #34c759;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.5625rem;
+    margin-bottom: 9px;
   }
 
   .agentation-popup__element {
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.5);
     max-width: 100%;
@@ -214,7 +216,7 @@ $green: #34c759;
   .agentation-popup__header-toggle {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 4px;
     background: none;
     border: none;
     padding: 0;
@@ -263,12 +265,12 @@ $green: #34c759;
   // CSSプロパティ表示用コードブロックスタイル
   .agentation-popup__styles-block {
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 0.375rem;
-    padding: 0.5rem 0.625rem;
-    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
     font-family:
       ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: 0.6875rem;
+    font-size: 11px;
     line-height: 1.5;
   }
 
@@ -287,11 +289,11 @@ $green: #34c759;
   }
 
   .agentation-popup__timestamp {
-    font-size: 0.625rem;
+    font-size: 10px;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.35);
     font-variant-numeric: tabular-nums;
-    margin-left: 0.5rem;
+    margin-left: 8px;
     flex-shrink: 0;
   }
 
@@ -303,10 +305,10 @@ $green: #34c759;
     font-size: 12px;
     font-style: italic;
     color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 0.5rem;
-    padding: 0.4rem 0.5rem;
+    margin-bottom: 8px;
+    padding: 6px 8px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 0.25rem;
+    border-radius: 4px;
     line-height: 1.45;
   }
 
@@ -316,8 +318,8 @@ $green: #34c759;
 
   .agentation-popup__textarea {
     width: 100%;
-    padding: 0.5rem 0.625rem;
-    font-size: 0.8125rem;
+    padding: 8px 10px;
+    font-size: 13px;
     font-family: inherit;
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
@@ -362,16 +364,16 @@ $green: #34c759;
   .agentation-popup__actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.375rem;
-    margin-top: 0.5rem;
+    gap: 6px;
+    margin-top: 8px;
   }
 
   .agentation-popup__cancel,
   .agentation-popup__submit {
-    padding: 0.4rem 0.875rem;
-    font-size: 0.75rem;
+    padding: 6px 14px;
+    font-size: 12px;
     font-weight: 500;
-    border-radius: 1rem;
+    border-radius: 16px;
     border: none;
     cursor: pointer;
     transition:

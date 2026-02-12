@@ -8,6 +8,7 @@ export { AgentationComponent } from './lib/components/agentation.component';
 // サブコンポーネント（上級者向け）
 export { MarkerComponent } from './lib/components/marker.component';
 export { PopupComponent } from './lib/components/popup.component';
+export { SettingsComponent } from './lib/components/settings.component';
 export { IconComponent } from './lib/icons/icon.component';
 
 // サービス

@@ -5,6 +5,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  ViewEncapsulation,
   Input,
   Output,
   EventEmitter,
@@ -30,6 +31,7 @@ type AnimState = 'initial' | 'enter' | 'entered' | 'exit';
   templateUrl: './popup.component.html',
   styleUrl: './popup.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
 export class PopupComponent implements OnInit, OnDestroy {
   /** 要素名（ヘッダー表示用） */

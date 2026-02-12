@@ -1,0 +1,599 @@
+// =============================================================================
+// 設定パネルコンポーネント - Angular BEM スタイル
+// =============================================================================
+
+$blue: #3c82f7;
+$red: #ff3b30;
+$green: #34c759;
+
+// =============================================================================
+// アニメーションキーフレーム
+// =============================================================================
+
+@keyframes settingsEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes settingsExit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+}
+
+@keyframes connectionPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+}
+
+// =============================================================================
+// 設定パネルコンテナ
+// =============================================================================
+
+[data-agentation] {
+  .agentation-settings {
+    position: fixed;
+    bottom: 72px;
+    right: 20px;
+    width: 260px;
+    padding: 12px 16px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.08);
+    z-index: 100001;
+    font-family:
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+    color: #fff;
+
+    // 初期状態（アニメーション前）
+    opacity: 0;
+
+    // 入場アニメーション
+    &--enter {
+      animation: settingsEnter 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    // 入場完了後の安定状態
+    &--entered {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    // 退場アニメーション
+    &--exit {
+      animation: settingsExit 0.15s ease-in forwards;
+    }
+
+    // =========================================================================
+    // ライトモード
+    // =========================================================================
+
+    &--light {
+      background: #fff;
+      color: rgba(0, 0, 0, 0.85);
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(0, 0, 0, 0.06);
+
+      .agentation-settings__label {
+        color: rgba(0, 0, 0, 0.5);
+      }
+
+      .agentation-settings__select {
+        background: rgba(0, 0, 0, 0.03);
+        color: rgba(0, 0, 0, 0.85);
+        border-color: rgba(0, 0, 0, 0.12);
+      }
+
+      .agentation-settings__input {
+        background: rgba(0, 0, 0, 0.03);
+        color: rgba(0, 0, 0, 0.85);
+        border-color: rgba(0, 0, 0, 0.12);
+
+        &::placeholder {
+          color: rgba(0, 0, 0, 0.35);
+        }
+      }
+
+      .agentation-settings__close {
+        color: rgba(0, 0, 0, 0.4);
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.06);
+          color: rgba(0, 0, 0, 0.75);
+        }
+      }
+
+      .agentation-settings__toggle-label {
+        color: rgba(0, 0, 0, 0.7);
+      }
+
+      .agentation-settings__toggle-button {
+        background: rgba(0, 0, 0, 0.15);
+
+        &--active {
+          background: $blue;
+        }
+      }
+
+      .agentation-settings__section + .agentation-settings__section {
+        border-color: rgba(0, 0, 0, 0.06);
+      }
+
+      .agentation-settings__nav-link {
+        color: rgba(0, 0, 0, 0.5);
+
+        &:hover {
+          color: rgba(0, 0, 0, 0.8);
+        }
+      }
+
+      .agentation-settings__nav-link-right svg {
+        color: rgba(0, 0, 0, 0.25);
+      }
+
+      .agentation-settings__nav-link:hover .agentation-settings__nav-link-right svg {
+        color: rgba(0, 0, 0, 0.8);
+      }
+
+      .agentation-settings__back-button {
+        color: rgba(0, 0, 0, 0.85);
+        border-bottom-color: rgba(0, 0, 0, 0.08);
+      }
+
+      .agentation-settings__section-header {
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      .agentation-settings__description {
+        color: rgba(0, 0, 0, 0.5);
+      }
+
+      .agentation-settings__auto-send-label {
+        color: rgba(0, 0, 0, 0.4);
+
+        &--active {
+          color: $blue;
+        }
+      }
+
+      .agentation-settings__webhook-textarea {
+        background: rgba(0, 0, 0, 0.03);
+        color: rgba(0, 0, 0, 0.85);
+        border-color: rgba(0, 0, 0, 0.12);
+
+        &::placeholder {
+          color: rgba(0, 0, 0, 0.35);
+        }
+      }
+    }
+  }
+
+  // =========================================================================
+  // ヘッダー
+  // =========================================================================
+
+  .agentation-settings__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .agentation-settings__title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .agentation-settings__close {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  // =========================================================================
+  // セクション
+  // =========================================================================
+
+  .agentation-settings__section {
+    padding: 8px 0;
+
+    & + & {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .agentation-settings__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  // =========================================================================
+  // セレクトボックス
+  // =========================================================================
+
+  .agentation-settings__select {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 13px;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    appearance: auto;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: $blue;
+    }
+
+    option {
+      background: #2a2a2a;
+      color: #fff;
+    }
+  }
+
+  // =========================================================================
+  // テキスト入力
+  // =========================================================================
+
+  .agentation-settings__input {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
+    margin-top: 6px;
+
+    &:focus {
+      border-color: $blue;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+  }
+
+  // =========================================================================
+  // カラースウォッチ
+  // =========================================================================
+
+  .agentation-settings__colors {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .agentation-settings__color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition:
+      border-color 0.15s ease,
+      transform 0.1s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &--active {
+      border-color: #fff;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  // =========================================================================
+  // トグルスイッチ
+  // =========================================================================
+
+  .agentation-settings__toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+
+  .agentation-settings__toggle-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .agentation-settings__toggle-button {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+
+    &--active {
+      background: $blue;
+    }
+  }
+
+  .agentation-settings__toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s ease;
+
+    .agentation-settings__toggle-button--active & {
+      transform: translateX(16px);
+    }
+  }
+
+  // =========================================================================
+  // Webhook URL入力エリア
+  // =========================================================================
+
+  .agentation-settings__webhook-url {
+    margin-top: 4px;
+  }
+
+  // =========================================================================
+  // ナビゲーションリンク（Manage MCP & Webhooks）
+  // =========================================================================
+
+  .agentation-settings__nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .agentation-settings__nav-link-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    svg {
+      color: rgba(255, 255, 255, 0.4);
+      transition: color 0.15s ease;
+    }
+  }
+
+  .agentation-settings__nav-link:hover .agentation-settings__nav-link-right svg {
+    color: #fff;
+  }
+
+  .agentation-settings__nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--connected {
+      background: $green;
+      animation: connectionPulse 2.5s ease-in-out infinite;
+    }
+
+    &--connecting {
+      background: #f5a623;
+      animation: connectionPulse 1.5s ease-in-out infinite;
+    }
+  }
+
+  // =========================================================================
+  // 戻るボタン（サブビュー）
+  // =========================================================================
+
+  .agentation-settings__back-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0 12px 0;
+    margin: -6px 0 8px 0;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.15px;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.12s cubic-bezier(0.32, 0.72, 0, 1);
+
+    svg {
+      opacity: 0.4;
+      flex-shrink: 0;
+      transition:
+        opacity 0.15s ease,
+        transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    &:hover svg {
+      opacity: 1;
+    }
+  }
+
+  // =========================================================================
+  // セクション行（ヘッダー + ステータス）
+  // =========================================================================
+
+  .agentation-settings__section-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .agentation-settings__section-header {
+    font-size: 13px;
+    font-weight: 400;
+    color: #fff;
+  }
+
+  .agentation-settings__description {
+    font-size: 11px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 2px;
+    line-height: 14px;
+  }
+
+  // =========================================================================
+  // MCP接続状態ドット
+  // =========================================================================
+
+  .agentation-settings__mcp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--connected {
+      background: $green;
+      animation: connectionPulse 2.5s ease-in-out infinite;
+    }
+
+    &--connecting {
+      background: #f5a623;
+      animation: connectionPulse 1.5s ease-in-out infinite;
+    }
+
+    &--disconnected {
+      background: $red;
+    }
+  }
+
+  // =========================================================================
+  // Auto-Send行
+  // =========================================================================
+
+  .agentation-settings__auto-send-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .agentation-settings__auto-send-label {
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.4);
+    transition: color 0.15s ease;
+
+    &--active {
+      color: #66b8ff;
+    }
+  }
+
+  // =========================================================================
+  // Webhookテキストエリア
+  // =========================================================================
+
+  .agentation-settings__webhook-textarea {
+    display: block;
+    width: 100%;
+    min-height: 60px;
+    box-sizing: border-box;
+    margin-top: 11px;
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 400;
+    color: #fff;
+    outline: none;
+    resize: none;
+    cursor: text !important;
+    user-select: text;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    &:focus {
+      border-color: $blue;
+    }
+  }
+}
