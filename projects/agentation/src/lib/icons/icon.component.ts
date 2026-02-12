@@ -5,7 +5,7 @@
 import { Component, ChangeDetectionStrategy, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import type { IconData } from './icon-data';
+import type { IconData, AnimatedIconData } from './icon-data';
 
 /**
  * SVGアイコンコンポーネント
@@ -32,7 +32,7 @@ import type { IconData } from './icon-data';
       @if (data.cssAnimations) {
         <style [innerHTML]="sanitizedStyles"></style>
       }
-      @for (path of data.paths; track $index) {
+      @for (path of activePaths; track $index) {
         <path
           [attr.d]="path.d"
           [attr.stroke]="path.stroke || null"
@@ -44,8 +44,8 @@ import type { IconData } from './icon-data';
           [ngStyle]="path.style || null"
         />
       }
-      @if (data.circles) {
-        @for (circle of data.circles; track $index) {
+      @if (activeCircles) {
+        @for (circle of activeCircles; track $index) {
           <circle
             [attr.cx]="circle.cx"
             [attr.cy]="circle.cy"
@@ -73,8 +73,30 @@ export class IconComponent {
   @Input({ required: true }) data!: IconData;
   /** アイコンサイズ（px） */
   @Input() size = 16;
+  /** バリアント名（AnimatedIconDataのvariants切り替え用） */
+  @Input() variant?: string;
 
   private readonly sanitizer = inject(DomSanitizer);
+
+  /** 現在のバリアントに応じたpaths */
+  get activePaths(): IconData['paths'] {
+    if (this.variant) {
+      const animated = this.data as AnimatedIconData;
+      const v = animated.variants?.[this.variant];
+      if (v) return v.paths;
+    }
+    return this.data.paths;
+  }
+
+  /** 現在のバリアントに応じたcircles */
+  get activeCircles(): IconData['circles'] {
+    if (this.variant) {
+      const animated = this.data as AnimatedIconData;
+      const v = animated.variants?.[this.variant];
+      if (v) return v.circles;
+    }
+    return this.data.circles;
+  }
 
   /** サニタイズ済みdefsコンテンツ */
   get sanitizedDefs(): SafeHtml {

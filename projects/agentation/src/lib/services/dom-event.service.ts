@@ -231,10 +231,19 @@ export class DOMEventService {
         if (!target) return;
         if (this.isToolbarElement(target)) return;
 
-        // ページのデフォルトクリック動作を阻止
+        // リンクナビゲーション等のデフォルト動作を常に阻止（React版準拠）
+        e.preventDefault();
+
+        // インタラクティブ要素のイベント伝播のみブロック（React版準拠）
+        // button, a, input等の要素はblockInteractions有効時のみstopPropagation
+        // それ以外の要素（div等）のクリックイベントは常に伝播させる
         if (options.blockInteractions) {
-          e.preventDefault();
-          e.stopPropagation();
+          const isInteractive = !!target.closest(
+            'button, a, input, select, textarea, [role="button"], [onclick]'
+          );
+          if (isInteractive) {
+            e.stopPropagation();
+          }
         }
 
         const { name: elementName, path: elementPath } = identifyElement(target);

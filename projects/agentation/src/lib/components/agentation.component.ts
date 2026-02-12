@@ -19,7 +19,7 @@ import {
   inject,
   effect,
   signal,
-  ViewChild,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OverlayModule } from '@angular/cdk/overlay';
@@ -95,6 +95,7 @@ export class AgentationComponent implements OnInit, OnDestroy {
   readonly service = inject(AgentationService);
   private readonly domEvents = inject(DOMEventService);
   private readonly serverSync = inject(ServerSyncService);
+  private readonly ngZone = inject(NgZone);
 
   // ===== アイコンデータ =====
   readonly icons = {
@@ -115,14 +116,17 @@ export class AgentationComponent implements OnInit, OnDestroy {
   // ユーティリティ公開（テンプレートで使用）
   readonly hexToRgba = hexToRgba;
 
-  // ポップアップ参照（shake用）
-  @ViewChild('pendingPopup') pendingPopup?: PopupComponent;
-  @ViewChild('editPopup') editPopup?: PopupComponent;
+  // shakeトリガーカウンター（signal inputベース）
+  readonly pendingShakeCount = signal(0);
+  readonly editShakeCount = signal(0);
 
   // ドラッグ選択の状態
   readonly isDragging = signal(false);
   readonly dragRectStyle = signal<Record<string, string>>({});
   readonly dragHighlightRects = signal<DOMRect[]>([]);
+
+  // ドラッグ完了後のハイライト退避用（ポップアップ表示中に保持）
+  readonly pendingHighlightRects = signal<DOMRect[]>([]);
 
   /** DOMRectをngStyleオブジェクトに変換 */
   rectToStyle(rect: DOMRect): Record<string, string> {
@@ -184,106 +188,124 @@ export class AgentationComponent implements OnInit, OnDestroy {
     });
 
     this.domEvents.elementClick$.subscribe(result => {
-      if (!this.service.isActive()) return;
+      this.ngZone.run(() => {
+        if (!this.service.isActive()) return;
 
-      // ポップアップ表示中はshakeして新規作成しない（React版準拠）
-      if (this.service.pendingAnnotation()) {
-        this.pendingPopup?.shake();
-        return;
-      }
-      if (this.service.editingAnnotation()) {
-        this.editPopup?.shake();
-        return;
-      }
+        // ポップアップ表示中はshakeして新規作成しない（React版準拠）
+        if (this.service.pendingAnnotation()) {
+          this.pendingShakeCount.update(v => (v + 1) % 1000000);
+          return;
+        }
+        if (this.service.editingAnnotation()) {
+          this.editShakeCount.update(v => (v + 1) % 1000000);
+          return;
+        }
 
-      this.service.startAnnotation({
-        x: result.x,
-        y: result.y,
-        clientY: result.clientY,
-        element: result.element,
-        elementPath: result.elementPath,
-        selectedText: result.selectedText,
-        boundingBox: result.boundingBox,
-        nearbyText: result.nearbyText,
-        cssClasses: result.cssClasses,
-        isFixed: result.isFixed,
-        fullPath: result.fullPath,
-        accessibility: result.accessibility,
-        computedStyles: result.computedStyles,
-        computedStylesObj: result.computedStylesObj,
-        nearbyElements: result.nearbyElements,
-        angularComponents: result.angularComponents,
-        targetElement: result.targetElement,
+        this.service.startAnnotation({
+          x: result.x,
+          y: result.y,
+          clientY: result.clientY,
+          element: result.element,
+          elementPath: result.elementPath,
+          selectedText: result.selectedText,
+          boundingBox: result.boundingBox,
+          nearbyText: result.nearbyText,
+          cssClasses: result.cssClasses,
+          isFixed: result.isFixed,
+          fullPath: result.fullPath,
+          accessibility: result.accessibility,
+          computedStyles: result.computedStyles,
+          computedStylesObj: result.computedStylesObj,
+          nearbyElements: result.nearbyElements,
+          angularComponents: result.angularComponents,
+          targetElement: result.targetElement,
+        });
       });
     });
 
     this.domEvents.escapePress$.subscribe(() => {
-      if (this.service.pendingAnnotation()) {
-        this.service.cancelPending();
-      } else if (this.service.editingAnnotation()) {
-        this.service.cancelEditing();
-      } else if (this.service.isActive()) {
-        this.service.deactivate();
-      }
+      this.ngZone.run(() => {
+        if (this.service.pendingAnnotation()) {
+          this.onCancelPending();
+        } else if (this.service.editingAnnotation()) {
+          this.service.cancelEditing();
+        } else if (this.service.isActive()) {
+          this.service.deactivate();
+        }
+      });
     });
 
     // ドラッグ選択イベント購読
+    // ngZone.run()で包むことで、フリーズ中（rAFがキューされてAngularの
+    // シグナルベースCD scheduling が停止する状態）でもChange Detectionが走る
     this.domEvents.dragStateChange$.subscribe(isDragging => {
-      this.isDragging.set(isDragging);
-      if (isDragging) {
-        // ドラッグ開始時にホバー情報をクリア
-        this.service.updateHover(null, { x: 0, y: 0 });
-      }
+      this.ngZone.run(() => {
+        this.isDragging.set(isDragging);
+        if (isDragging) {
+          // ドラッグ開始時にホバー情報と前回ハイライトをクリア
+          this.service.updateHover(null, { x: 0, y: 0 });
+          this.pendingHighlightRects.set([]);
+        }
+      });
     });
 
     this.domEvents.dragRect$.subscribe(rect => {
-      if (rect) {
-        this.dragRectStyle.set({
-          position: 'fixed',
-          left: rect.left + 'px',
-          top: rect.top + 'px',
-          width: rect.width + 'px',
-          height: rect.height + 'px',
-        });
-      }
+      this.ngZone.run(() => {
+        if (rect) {
+          this.dragRectStyle.set({
+            position: 'fixed',
+            left: rect.left + 'px',
+            top: rect.top + 'px',
+            width: rect.width + 'px',
+            height: rect.height + 'px',
+          });
+        }
+      });
     });
 
     this.domEvents.dragHighlights$.subscribe(rects => {
-      this.dragHighlightRects.set(rects);
+      this.ngZone.run(() => {
+        this.dragHighlightRects.set(rects);
+      });
     });
 
     this.domEvents.dragComplete$.subscribe(result => {
-      if (!this.service.isActive()) return;
+      this.ngZone.run(() => {
+        if (!this.service.isActive()) return;
 
-      // ポップアップ表示中はshakeして新規作成しない（React版準拠）
-      if (this.service.pendingAnnotation()) {
-        this.pendingPopup?.shake();
-        return;
-      }
-      if (this.service.editingAnnotation()) {
-        this.editPopup?.shake();
-        return;
-      }
+        // ポップアップ表示中はshakeして新規作成しない（React版準拠）
+        if (this.service.pendingAnnotation()) {
+          this.pendingShakeCount.update(v => (v + 1) % 1000000);
+          return;
+        }
+        if (this.service.editingAnnotation()) {
+          this.editShakeCount.update(v => (v + 1) % 1000000);
+          return;
+        }
 
-      this.service.startAnnotation({
-        x: result.x,
-        y: result.y,
-        clientY: result.clientY,
-        element: result.element,
-        elementPath: result.elementPath,
-        selectedText: result.selectedText,
-        boundingBox: result.boundingBox,
-        nearbyText: result.nearbyText,
-        cssClasses: result.cssClasses,
-        isFixed: result.isFixed,
-        isMultiSelect: result.isMultiSelect,
-        fullPath: result.fullPath,
-        accessibility: result.accessibility,
-        computedStyles: result.computedStyles,
-        computedStylesObj: result.computedStylesObj,
-        nearbyElements: result.nearbyElements,
-        angularComponents: result.angularComponents,
-        targetElement: result.targetElement,
+        // ドラッグハイライトを退避（DOM削除前にコピーして保持）
+        this.pendingHighlightRects.set(this.dragHighlightRects().slice());
+
+        this.service.startAnnotation({
+          x: result.x,
+          y: result.y,
+          clientY: result.clientY,
+          element: result.element,
+          elementPath: result.elementPath,
+          selectedText: result.selectedText,
+          boundingBox: result.boundingBox,
+          nearbyText: result.nearbyText,
+          cssClasses: result.cssClasses,
+          isFixed: result.isFixed,
+          isMultiSelect: result.isMultiSelect,
+          fullPath: result.fullPath,
+          accessibility: result.accessibility,
+          computedStyles: result.computedStyles,
+          computedStylesObj: result.computedStylesObj,
+          nearbyElements: result.nearbyElements,
+          angularComponents: result.angularComponents,
+          targetElement: result.targetElement,
+        });
       });
     });
 
@@ -346,6 +368,13 @@ export class AgentationComponent implements OnInit, OnDestroy {
     if (annotation) {
       this.annotationAdd.emit(annotation);
     }
+    this.pendingHighlightRects.set([]);
+  }
+
+  /** 新規アノテーションキャンセル（ハイライトもクリア） */
+  onCancelPending(): void {
+    this.service.cancelPending();
+    this.pendingHighlightRects.set([]);
   }
 
   /** アノテーション編集送信 */

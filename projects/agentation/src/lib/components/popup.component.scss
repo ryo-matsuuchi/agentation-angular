@@ -203,7 +203,7 @@ $green: #34c759;
   }
 
   .agentation-popup__element {
-    font-size: 12px;
+    font-size: 0.75em;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.5);
     max-width: 100%;
@@ -270,7 +270,7 @@ $green: #34c759;
     margin-bottom: 8px;
     font-family:
       ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: 11px;
+    font-size: 0.6875em;
     line-height: 1.5;
   }
 
@@ -289,7 +289,7 @@ $green: #34c759;
   }
 
   .agentation-popup__timestamp {
-    font-size: 10px;
+    font-size: 0.625em;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.35);
     font-variant-numeric: tabular-nums;
@@ -302,7 +302,7 @@ $green: #34c759;
   // ===========================================================================
 
   .agentation-popup__quote {
-    font-size: 12px;
+    font-size: 0.75em;
     font-style: italic;
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 8px;
@@ -319,7 +319,7 @@ $green: #34c759;
   .agentation-popup__textarea {
     width: 100%;
     padding: 8px 10px;
-    font-size: 13px;
+    font-size: 0.8125em;
     font-family: inherit;
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
@@ -371,7 +371,7 @@ $green: #34c759;
   .agentation-popup__cancel,
   .agentation-popup__submit {
     padding: 6px 14px;
-    font-size: 12px;
+    font-size: 0.75em;
     font-weight: 500;
     border-radius: 16px;
     border: none;

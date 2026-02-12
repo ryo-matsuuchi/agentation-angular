@@ -14,6 +14,8 @@ import {
   OnInit,
   OnDestroy,
   signal,
+  input,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,6 +36,9 @@ type AnimState = 'initial' | 'enter' | 'entered' | 'exit';
   encapsulation: ViewEncapsulation.None,
 })
 export class PopupComponent implements OnInit, OnDestroy {
+  /** shakeアニメーションのトリガー（signal input） */
+  readonly shakeTrigger = input(0);
+
   /** 要素名（ヘッダー表示用） */
   @Input({ required: true }) element!: string;
   /** タイムスタンプ表示 */
@@ -77,6 +82,16 @@ export class PopupComponent implements OnInit, OnDestroy {
 
   // アイコンデータ
   readonly trashIcon = ICON_TRASH;
+
+  constructor() {
+    // shakeTriggerが変更されたらshakeアニメーションを発火
+    effect(() => {
+      const v = this.shakeTrigger();
+      if (v > 0) {
+        this.shake();
+      }
+    });
+  }
 
   // タイマー参照
   private cancelTimer: ReturnType<typeof setTimeout> | null = null;

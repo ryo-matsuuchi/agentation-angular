@@ -206,7 +206,7 @@ $green: #34c759;
   }
 
   .agentation-settings__title {
-    font-size: 13px;
+    font-size: 0.8125em;
     font-weight: 600;
   }
 
@@ -221,7 +221,7 @@ $green: #34c759;
     border: none;
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
-    font-size: 12px;
+    font-size: 0.75em;
     transition:
       background-color 0.15s ease,
       color 0.15s ease;
@@ -246,7 +246,7 @@ $green: #34c759;
 
   .agentation-settings__label {
     display: block;
-    font-size: 11px;
+    font-size: 0.6875em;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
@@ -261,7 +261,7 @@ $green: #34c759;
   .agentation-settings__select {
     width: 100%;
     padding: 6px 8px;
-    font-size: 13px;
+    font-size: 0.8125em;
     font-family: inherit;
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
@@ -289,7 +289,7 @@ $green: #34c759;
   .agentation-settings__input {
     width: 100%;
     padding: 6px 8px;
-    font-size: 12px;
+    font-size: 0.75em;
     font-family: inherit;
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
@@ -356,7 +356,7 @@ $green: #34c759;
   }
 
   .agentation-settings__toggle-label {
-    font-size: 13px;
+    font-size: 0.8125em;
     color: rgba(255, 255, 255, 0.85);
   }
 
@@ -413,7 +413,7 @@ $green: #34c759;
     border: none;
     background: transparent;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 0.8125em;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
@@ -471,7 +471,7 @@ $green: #34c759;
     border-radius: 0;
     background: transparent;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 0.8125em;
     font-weight: 500;
     letter-spacing: -0.15px;
     color: #fff;
@@ -502,13 +502,13 @@ $green: #34c759;
   }
 
   .agentation-settings__section-header {
-    font-size: 13px;
+    font-size: 0.8125em;
     font-weight: 400;
     color: #fff;
   }
 
   .agentation-settings__description {
-    font-size: 11px;
+    font-size: 0.6875em;
     font-weight: 300;
     color: rgba(255, 255, 255, 0.5);
     margin-top: 2px;
@@ -551,7 +551,7 @@ $green: #34c759;
   }
 
   .agentation-settings__auto-send-label {
-    font-size: 11px;
+    font-size: 0.6875em;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.4);
     transition: color 0.15s ease;
@@ -576,7 +576,7 @@ $green: #34c759;
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.03);
     font-family: inherit;
-    font-size: 12px;
+    font-size: 0.75em;
     font-weight: 400;
     color: #fff;
     outline: none;
