@@ -1,13 +1,16 @@
 {
   "name": "@agentation/angular",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "peerDependencies": {
     "@angular/common": ">=19.0.0",
     "@angular/core": ">=19.0.0",
     "@angular/cdk": ">=19.0.0"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "*.mjs",
+    "*.css"
+  ],
   "module": "fesm2022/agentation-angular.mjs",
   "typings": "index.d.ts",
   "exports": {

@@ -42,6 +42,7 @@ export declare class AgentationComponent implements OnInit, OnDestroy {
     readonly isDragging: import("@angular/core").WritableSignal<boolean>;
     readonly dragRectStyle: import("@angular/core").WritableSignal<Record<string, string>>;
     readonly dragHighlightRects: import("@angular/core").WritableSignal<DOMRect[]>;
+    readonly pendingHighlightRects: import("@angular/core").WritableSignal<DOMRect[]>;
     /** DOMRectをngStyleオブジェクトに変換 */
     rectToStyle(rect: DOMRect): Record<string, string>;
     constructor();
@@ -51,6 +52,8 @@ export declare class AgentationComponent implements OnInit, OnDestroy {
     toggleActive(): void;
     /** アノテーション送信 */
     onAnnotationSubmit(text: string): void;
+    /** 新規アノテーションキャンセル（ハイライトもクリア） */
+    onCancelPending(): void;
     /** アノテーション編集送信 */
     onAnnotationEditSubmit(text: string): void;
     /** マーカークリック */
